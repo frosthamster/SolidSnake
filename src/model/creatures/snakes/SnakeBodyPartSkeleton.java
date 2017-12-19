@@ -103,7 +103,7 @@ public class SnakeBodyPartSkeleton implements SnakeBodyPart {
         }
     }
 
-    private static final Map<Direction, Direction> ILLEGAL_TURN = new HashMap<>(){
+    private static final Map<Direction, Direction> ILLEGAL_TURN = new HashMap<Direction, Direction>(){
         {
             put(Direction.Up, Direction.Down);
             put(Direction.Down, Direction.Up);

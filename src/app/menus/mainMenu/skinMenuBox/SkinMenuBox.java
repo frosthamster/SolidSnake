@@ -1,9 +1,12 @@
 package app.menus.mainMenu.skinMenuBox;
 
+import static javax.swing.UIManager.put;
+
 import app.SkinSettings;
 import app.menus.mainMenu.MainMenuButton;
 import app.menus.menu.MenuBox;
 import app.menus.menu.MenuObject;
+import java.util.HashMap;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
@@ -90,10 +93,12 @@ public class SkinMenuBox extends MenuBox {
             previewBox3.setImage(getImage(player3Skin, 3));
         });
 
-        buttons = Map.of(
-                "skinAccept", skinAccept,
-                "skinDecline", skinDecline
-        );
+        buttons = new HashMap<String, MenuObject>() {{
+            put("skinAccept", skinAccept);
+            put("skinDecline", skinDecline);
+        }};
+
+
         previewBox.getChildren().addAll(previewBox1, previewBox2, previewBox3);
         buttonsBox.getChildren().addAll(skinAccept, skinDecline);
         root.getChildren().addAll(previewBox, buttonsBox);

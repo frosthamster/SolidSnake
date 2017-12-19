@@ -3,6 +3,7 @@ package app.menus.pauseMenu;
 import app.menus.menu.Menu;
 import app.menus.menu.MenuBox;
 import app.menus.menu.MenuObject;
+import java.util.HashMap;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -16,72 +17,80 @@ import java.util.Map;
 
 public class PauseMenu extends Menu {
 
-    private Map<String, MenuObject> buttons;
-    private Rectangle bg;
-    private MenuBox menuPause;
+  private Map<String, MenuObject> buttons;
+  private Rectangle bg;
+  private MenuBox menuPause;
 
-    public PauseMenu(){
-        //TODO: get width and height from App
-        bg = new Rectangle(1000, 750);
-        bg.setFill(Color.GREY);
-        bg.setOpacity(0.9);
+  public PauseMenu() {
+    //TODO: get width and height from App
+    bg = new Rectangle(1000, 750);
+    bg.setFill(Color.GREY);
+    bg.setOpacity(0.9);
 
-        MenuObject pauseResume = new PauseMenuButton("RESUME", 22);
-        MenuObject pauseRestart = new PauseMenuButton("RESTART", 22);
-        MenuObject pauseQuit = new PauseMenuButton("QUIT", 22);
-        menuPause = new PauseMenuBox(
-                pauseResume,
-                pauseRestart,
-                pauseQuit
-        );
+    MenuObject pauseResume = new PauseMenuButton("RESUME", 22);
+    MenuObject pauseRestart = new PauseMenuButton("RESTART", 22);
+    MenuObject pauseQuit = new PauseMenuButton("QUIT", 22);
+    menuPause = new PauseMenuBox(
+        pauseResume,
+        pauseRestart,
+        pauseQuit
+    );
 
-        StackPane quitText = new StackPane();
-        quitText.setAlignment(Pos.CENTER);
-        Text text = new Text("ARE YOU SURE YOU WANT TO QUIT TO MAIN MENU?");
-        text.setFill(Color.BLACK);
-        text.setFont(Font.font("Calibri", FontWeight.SEMI_BOLD, 22));
-        quitText.getChildren().add(text);
+    StackPane quitText = new StackPane();
+    quitText.setAlignment(Pos.CENTER);
+    Text text = new Text("ARE YOU SURE YOU WANT TO QUIT TO MAIN MENU?");
+    text.setFill(Color.BLACK);
+    text.setFont(Font.font("Calibri", FontWeight.SEMI_BOLD, 22));
+    quitText.getChildren().add(text);
 
-        HBox quitConfirm = new HBox();
-        quitConfirm.setAlignment(Pos.CENTER);
-        MenuObject quitYes = new PauseMenuButton("YES", 22);
-        MenuObject quitNo = new PauseMenuButton("NO", 22);
-        quitConfirm.getChildren().addAll(quitYes, quitNo);
+    HBox quitConfirm = new HBox();
+    quitConfirm.setAlignment(Pos.CENTER);
+    MenuObject quitYes = new PauseMenuButton("YES", 22);
+    MenuObject quitNo = new PauseMenuButton("NO", 22);
+    quitConfirm.getChildren().addAll(quitYes, quitNo);
 
-        VBox menuQuit = new VBox();
-        menuQuit.setAlignment(Pos.CENTER);
-        menuQuit.getChildren().addAll(quitText, quitConfirm);
+    VBox menuQuit = new VBox();
+    menuQuit.setAlignment(Pos.CENTER);
+    menuQuit.getChildren().addAll(quitText, quitConfirm);
 
-        pauseResume.setOnMouseClicked(event -> {});
-        pauseRestart.setOnMouseClicked(event -> {});
-        pauseQuit.setOnMouseClicked(event -> {
-            getChildren().remove(menuPause);
-            getChildren().add(menuQuit);
-        });
+    pauseResume.setOnMouseClicked(event -> {
+    });
+    pauseRestart.setOnMouseClicked(event -> {
+    });
+    pauseQuit.setOnMouseClicked(event -> {
+      getChildren().remove(menuPause);
+      getChildren().add(menuQuit);
+    });
 
-        quitYes.setOnMouseClicked(event -> {});
-        quitNo.setOnMouseClicked(event -> {
-            getChildren().remove(menuQuit);
-            getChildren().add(menuPause);
-        });
+    quitYes.setOnMouseClicked(event -> {
+    });
+    quitNo.setOnMouseClicked(event -> {
+      getChildren().remove(menuQuit);
+      getChildren().add(menuPause);
+    });
 
-        menuPause.setAlignment(Pos.CENTER);
-        setAlignment(Pos.CENTER);
+    menuPause.setAlignment(Pos.CENTER);
+    setAlignment(Pos.CENTER);
 
-        getChildren().addAll(bg, menuPause);
+    getChildren().addAll(bg, menuPause);
 
-        //TODO: Java9 ONLY!!!!!
-        buttons = Map.of("pauseResume", pauseResume, "pauseRestart", pauseRestart, "quitYes", quitYes);
-    }
+    //TODO: Java9 ONLY!!!!!
+    buttons = new HashMap<String, MenuObject>() {{
+      put("pauseResume", pauseResume);
+      put("pauseRestart", pauseRestart);
+      put("quitYes", quitYes);
+    }};
 
-    @Override
-    public void reload() {
-        getChildren().clear();
-        getChildren().addAll(bg, menuPause);
-    }
+  }
 
-    @Override
-    public Map<String, MenuObject> getButtonsMap(){
-        return buttons;
-    }
+  @Override
+  public void reload() {
+    getChildren().clear();
+    getChildren().addAll(bg, menuPause);
+  }
+
+  @Override
+  public Map<String, MenuObject> getButtonsMap() {
+    return buttons;
+  }
 }

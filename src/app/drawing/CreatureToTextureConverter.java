@@ -1,15 +1,17 @@
 package app.drawing;
 
+import java.util.HashMap;
 import model.creatures.CreatureType;
 import java.util.Map;
 
 public final class CreatureToTextureConverter {
-    public static final Map<CreatureType, TextureType> converters = Map.of(
-            CreatureType.SimpleSnakeBodyPart, TextureType.SimpleSnakeBodyPart,
-            CreatureType.SnakeHead, TextureType.SnakeHead,
-            CreatureType.Wall, TextureType.Wall,
-            CreatureType.Apple, TextureType.Apple,
-            CreatureType.Mushroom, TextureType.Mushroom,
-            CreatureType.TailDiscardBodyPart, TextureType.TailDiscardSnakeBodyPart
-    );
+
+  public static final Map<CreatureType, TextureType> converters = new HashMap<CreatureType, TextureType>() {{
+    put(CreatureType.SimpleSnakeBodyPart, TextureType.SimpleSnakeBodyPart);
+    put(CreatureType.SnakeHead, TextureType.SnakeHead);
+    put(CreatureType.Wall, TextureType.Wall);
+    put(CreatureType.Apple, TextureType.Apple);
+    put(CreatureType.Mushroom, TextureType.Mushroom);
+    put(CreatureType.TailDiscardBodyPart, TextureType.TailDiscardSnakeBodyPart);
+  }};
 }

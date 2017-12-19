@@ -1,5 +1,6 @@
 package app.menus.mainMenu.skinMenuBox;
 
+import java.util.HashMap;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -21,10 +22,10 @@ public class SkinMenuBoxPreviewBox extends StackPane {
         VBox box = new VBox();
         MenuObject buttonPrev = new SkinMenuBoxArrowButton(Direction.Up);
         MenuObject buttonNext = new SkinMenuBoxArrowButton(Direction.Down);
-        buttons = Map.of(
-                "buttonPrev", buttonPrev,
-                "buttonNext", buttonNext
-        );
+        buttons = new HashMap<String, MenuObject>(){{
+            put("buttonPrev", buttonPrev);
+            put("buttonNext", buttonNext);
+        }};
 
         box.getChildren().addAll(buttonPrev, this.imageView, buttonNext);
         getChildren().add(box);

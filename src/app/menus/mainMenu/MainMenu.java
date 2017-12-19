@@ -6,6 +6,7 @@ import app.menus.mainMenu.skinMenuBox.SkinMenuBox;
 import app.menus.menu.Menu;
 import app.menus.menu.MenuBox;
 import app.menus.menu.MenuObject;
+import java.util.HashMap;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
@@ -15,152 +16,154 @@ import java.util.Map;
 
 public class MainMenu extends Menu {
 
-    private Map<String, MenuObject> buttons;
-    private VBox menuWithInfo;
-    private StackPane startPane;
-    private MainMenuInfoText infoText;
+  private Map<String, MenuObject> buttons;
+  private VBox menuWithInfo;
+  private StackPane startPane;
+  private MainMenuInfoText infoText;
 
-    public MainMenu(Settings settings){
-        menuWithInfo = new VBox();
-        menuWithInfo.setAlignment(Pos.BOTTOM_CENTER);
+  public MainMenu(Settings settings) {
+    menuWithInfo = new VBox();
+    menuWithInfo.setAlignment(Pos.BOTTOM_CENTER);
 
-        startPane = new StackPane();
-        infoText = new MainMenuInfoText("");
+    startPane = new StackPane();
+    infoText = new MainMenuInfoText("");
 
-        MenuObject mainPlay = new MainMenuButton("PLAY");
-        MenuObject mainOptions = new MainMenuButton("OPTIONS");
-        MenuObject mainExit = new MainMenuButton("EXIT");
-        MenuBox menuMain = new MainMenuBox(
-                mainPlay,
-                mainOptions,
-                mainExit
-        );
+    MenuObject mainPlay = new MainMenuButton("PLAY");
+    MenuObject mainOptions = new MainMenuButton("OPTIONS");
+    MenuObject mainExit = new MainMenuButton("EXIT");
+    MenuBox menuMain = new MainMenuBox(
+        mainPlay,
+        mainOptions,
+        mainExit
+    );
 
-        MainMenuSlider optionsSpeed = new MainMenuSlider(1, 20, 21 - settings.getSpeed()/50, "GAME SPEED");
-        MainMenuSlider optionsSize = new MainMenuSlider(10, 60, settings.getSize(), "SIZE OF GAME OBJECTS");
-        MenuObject optionsSkins = new MainMenuButton("SKINS");
-        MenuObject optionsBack = new MainMenuButton("BACK");
-        MenuBox menuOptions = new MainMenuBox(
-                optionsSpeed,
-                optionsSize,
-                optionsSkins,
-                optionsBack
-        );
+    MainMenuSlider optionsSpeed = new MainMenuSlider(1, 20, 21 - settings.getSpeed() / 50,
+        "GAME SPEED");
+    MainMenuSlider optionsSize = new MainMenuSlider(10, 60, settings.getSize(),
+        "SIZE OF GAME OBJECTS");
+    MenuObject optionsSkins = new MainMenuButton("SKINS");
+    MenuObject optionsBack = new MainMenuButton("BACK");
+    MenuBox menuOptions = new MainMenuBox(
+        optionsSpeed,
+        optionsSize,
+        optionsSkins,
+        optionsBack
+    );
 
-        MenuBox menuSkins = new SkinMenuBox((SkinSettings)settings.getSkins());
+    MenuBox menuSkins = new SkinMenuBox((SkinSettings) settings.getSkins());
 
-        MenuObject playSolo = new MainMenuButton("SOLO");
-        MenuObject playDuo = new MainMenuButton("DUO");
-        MenuObject playTrio = new MainMenuButton("TRIO");
-        MenuObject playBack = new MainMenuButton("BACK");
-        MenuBox menuPlay = new MainMenuBox(
-                playSolo,
-                playDuo,
-                playTrio,
-                playBack
-        );
+    MenuObject playSolo = new MainMenuButton("SOLO");
+    MenuObject playDuo = new MainMenuButton("DUO");
+    MenuObject playTrio = new MainMenuButton("TRIO");
+    MenuObject playBack = new MainMenuButton("BACK");
+    MenuBox menuPlay = new MainMenuBox(
+        playSolo,
+        playDuo,
+        playTrio,
+        playBack
+    );
 
+    mainPlay.setOnMouseClicked(event -> {
+      fadeFromMenuToMenu(menuMain, menuPlay);
+      infoText.setText("");
+    });
+    mainOptions.setOnMouseClicked(event -> {
+      fadeFromMenuToMenu(menuMain, menuOptions);
+      infoText.setText("");
+    });
+    mainExit.setOnMouseClicked(event -> System.exit(0));
 
-        mainPlay.setOnMouseClicked(event -> {
-            fadeFromMenuToMenu(menuMain, menuPlay);
-            infoText.setText("");
-        });
-        mainOptions.setOnMouseClicked(event -> {
-            fadeFromMenuToMenu(menuMain, menuOptions);
-            infoText.setText("");
-        });
-        mainExit.setOnMouseClicked(event -> System.exit(0));
+    optionsSpeed.getSlider().setBlockIncrement(1);
+    optionsSpeed.getSlider().setMajorTickUnit(1);
+    optionsSpeed.getSlider().setMinorTickCount(0);
+    optionsSpeed.getSlider().setShowTickLabels(true);
+    optionsSpeed.getSlider().setSnapToTicks(true);
+    optionsSpeed.getSlider().valueProperty().addListener((observable, oldValue, newValue) -> {
+      settings.setSpeed(newValue.intValue() * 50);
+      settings.setSpeed((21 - newValue.intValue()) * 50);
+    });
+    optionsSize.getSlider().setBlockIncrement(5);
+    optionsSize.getSlider().setMajorTickUnit(10);
+    optionsSize.getSlider().setMinorTickCount(4);
+    optionsSize.getSlider().setShowTickLabels(true);
+    optionsSize.getSlider().setShowTickMarks(true);
+    optionsSize.getSlider().setSnapToTicks(true);
+    optionsSize.getSlider().valueProperty().addListener((observable, oldValue, newValue) ->
+        settings.setSize(newValue.intValue()));
+    optionsSkins.setOnMouseClicked(event -> {
+      fadeFromMenuToMenu(menuOptions, menuSkins);
+      infoText.setText("");
+    });
+    optionsBack.setOnMouseClicked(event -> {
+      fadeFromMenuToMenu(menuOptions, menuMain);
+      infoText.setText("");
+    });
 
+    Map<String, MenuObject> skinButtons = menuSkins.getButtonsMap();
+    skinButtons.get("skinAccept").setOnMouseClicked(event -> {
 
-        optionsSpeed.getSlider().setBlockIncrement(1);
-        optionsSpeed.getSlider().setMajorTickUnit(1);
-        optionsSpeed.getSlider().setMinorTickCount(0);
-        optionsSpeed.getSlider().setShowTickLabels(true);
-        optionsSpeed.getSlider().setSnapToTicks(true);
-        optionsSpeed.getSlider().valueProperty().addListener((observable, oldValue, newValue) -> {
-            settings.setSpeed(newValue.intValue()*50);
-            settings.setSpeed((21 - newValue.intValue())*50);
-        });
-        optionsSize.getSlider().setBlockIncrement(5);
-        optionsSize.getSlider().setMajorTickUnit(10);
-        optionsSize.getSlider().setMinorTickCount(4);
-        optionsSize.getSlider().setShowTickLabels(true);
-        optionsSize.getSlider().setShowTickMarks(true);
-        optionsSize.getSlider().setSnapToTicks(true);
-        optionsSize.getSlider().valueProperty().addListener((observable, oldValue, newValue) ->
-            settings.setSize(newValue.intValue()));
-        optionsSkins.setOnMouseClicked(event -> {
-            fadeFromMenuToMenu(menuOptions, menuSkins);
-            infoText.setText("");
-        });
-        optionsBack.setOnMouseClicked(event -> {
-            fadeFromMenuToMenu(menuOptions, menuMain);
-            infoText.setText("");
-        });
+      fadeFromMenuToMenu(menuSkins, menuOptions);
+      infoText.setText("");
+    });
+    skinButtons.get("skinDecline").setOnMouseClicked(event -> {
+      fadeFromMenuToMenu(menuSkins, menuOptions);
+      infoText.setText("");
+    });
 
+    playBack.setOnMouseClicked(event -> {
+      fadeFromMenuToMenu(menuPlay, menuMain);
+      infoText.setText("");
+    });
 
-        Map<String, MenuObject> skinButtons = menuSkins.getButtonsMap();
-        skinButtons.get("skinAccept").setOnMouseClicked(event -> {
+    initMenu(menuMain);
+    initMenu(menuOptions);
+    initMenu(menuSkins);
+    initMenu(menuPlay);
 
-            fadeFromMenuToMenu(menuSkins, menuOptions);
-            infoText.setText("");
-        });
-        skinButtons.get("skinDecline").setOnMouseClicked(event -> {
-            fadeFromMenuToMenu(menuSkins, menuOptions);
-            infoText.setText("");
-        });
+    startPane.getChildren().add(menuMain);
+    menuWithInfo.getChildren().addAll(startPane, infoText);
+    getChildren().add(menuWithInfo);
 
+    buttons = new HashMap<String, MenuObject>() {{
+      put("playSolo", playSolo);
+      put("playDuo", playDuo);
+      put("playTrio", playTrio);
+    }};
 
-        playBack.setOnMouseClicked(event -> {
-            fadeFromMenuToMenu(menuPlay, menuMain);
-            infoText.setText("");
-        });
+  }
 
+  @Override
+  public void reload() {
+    getChildren().clear();
+    getChildren().add(menuWithInfo);
+  }
 
-        initMenu(menuMain);
-        initMenu(menuOptions);
-        initMenu(menuSkins);
-        initMenu(menuPlay);
+  @Override
+  public Map<String, MenuObject> getButtonsMap() {
+    return buttons;
+  }
 
-        startPane.getChildren().add(menuMain);
-        menuWithInfo.getChildren().addAll(startPane, infoText);
-        getChildren().add(menuWithInfo);
+  private void fadeFromMenuToMenu(MenuBox from, MenuBox to) {
+    FadeTransition frFrom = new FadeTransition(Duration.millis(200), from);
+    frFrom.setFromValue(1);
+    frFrom.setToValue(0);
 
-        buttons = Map.of("playSolo", playSolo, "playDuo", playDuo, "playTrio", playTrio);
-    }
+    FadeTransition ftTo = new FadeTransition(Duration.millis(200), to);
+    ftTo.setFromValue(0);
+    ftTo.setToValue(1);
 
-    @Override
-    public void reload() {
-        getChildren().clear();
-        getChildren().add(menuWithInfo);
-    }
+    frFrom.play();
+    frFrom.setOnFinished(event -> {
+      startPane.getChildren().remove(from);
+      to.setOpacity(0);
+      startPane.getChildren().add(to);
+      ftTo.play();
+    });
+  }
 
-    @Override
-    public Map<String, MenuObject> getButtonsMap(){
-        return buttons;
-    }
-
-    private void fadeFromMenuToMenu(MenuBox from, MenuBox to){
-        FadeTransition frFrom = new FadeTransition(Duration.millis(200), from);
-        frFrom.setFromValue(1);
-        frFrom.setToValue(0);
-
-        FadeTransition ftTo = new FadeTransition(Duration.millis(200), to);
-        ftTo.setFromValue(0);
-        ftTo.setToValue(1);
-
-        frFrom.play();
-        frFrom.setOnFinished(event -> {
-            startPane.getChildren().remove(from);
-            to.setOpacity(0);
-            startPane.getChildren().add(to);
-            ftTo.play();
-        });
-    }
-
-    private void initMenu(MenuBox menu){
-        menu.setAlignment(Pos.BOTTOM_CENTER);
-        menu.setMaxWidth(300);
-        menu.setTranslateY(-20);
-    }
+  private void initMenu(MenuBox menu) {
+    menu.setAlignment(Pos.BOTTOM_CENTER);
+    menu.setMaxWidth(300);
+    menu.setTranslateY(-20);
+  }
 }
