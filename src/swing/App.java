@@ -1,6 +1,5 @@
 package swing;
 
-import lombok.val;
 import model.game.Game;
 import model.game.GameFrame;
 import model.utils.Direction;
