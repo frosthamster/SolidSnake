@@ -177,7 +177,6 @@ public class App extends Application {
         });
 
         gameLoop = new AnimationTimer(){
-
             private long prevTime = 0;
 
             @Override
