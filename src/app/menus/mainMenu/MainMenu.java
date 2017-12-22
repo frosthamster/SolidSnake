@@ -55,12 +55,23 @@ public class MainMenu extends Menu {
     MenuObject playSolo = new MainMenuButton("SOLO");
     MenuObject playDuo = new MainMenuButton("DUO");
     MenuObject playTrio = new MainMenuButton("TRIO");
+    MenuObject playOnline = new MainMenuButton("ONLINE");
     MenuObject playBack = new MainMenuButton("BACK");
     MenuBox menuPlay = new MainMenuBox(
         playSolo,
         playDuo,
         playTrio,
+        playOnline,
         playBack
+    );
+
+    MenuObject connectEdit = new MainMenuEdit("SERVER IP");
+    MenuObject connectBack = new MainMenuButton("BACK");
+    MenuObject connectPlay = new MainMenuButton("CONNECT");
+    MenuBox menuConnect = new MainMenuBox(
+        connectEdit,
+        connectPlay,
+        connectBack
     );
 
     mainPlay.setOnMouseClicked(event -> {
@@ -110,8 +121,17 @@ public class MainMenu extends Menu {
       infoText.setText("");
     });
 
+    playOnline.setOnMouseClicked(event -> {
+      fadeFromMenuToMenu(menuPlay, menuConnect);
+      infoText.setText("");
+    });
     playBack.setOnMouseClicked(event -> {
       fadeFromMenuToMenu(menuPlay, menuMain);
+      infoText.setText("");
+    });
+
+    connectBack.setOnMouseClicked(event -> {
+      fadeFromMenuToMenu(menuConnect, menuPlay);
       infoText.setText("");
     });
 
@@ -128,6 +148,7 @@ public class MainMenu extends Menu {
       put("playSolo", playSolo);
       put("playDuo", playDuo);
       put("playTrio", playTrio);
+      put("playOnline", playOnline);
     }};
 
   }
