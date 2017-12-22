@@ -28,10 +28,9 @@ public class SnakeServer {
     } catch (IOException e) {
       throw new RuntimeException();
     }
-    listen();
   }
 
-  private void listen() {
+  public void start() {
     while (isRunning) {
       Socket clientSocket;
       try {

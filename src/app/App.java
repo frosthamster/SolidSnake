@@ -177,26 +177,18 @@ public class App extends Application {
     });
 
     gameLoop = new AnimationTimer() {
-
       private long prevTime = 0;
 
-        gameLoop = new AnimationTimer(){
-            private long prevTime = 0;
-
-            @Override
-            public void handle(long now) {
-                if (!isGameOver && !isPaused) {
-                    if ((now - prevTime) >= settings.getSpeed() * 1000000) {
-                        prevTime = now;
-                        Direction[] directions = new Direction[snakeCount];
-                        System.arraycopy(currDir, 0, directions, 0, snakeCount);
-                        frame = game.makeTurn(directions);
-                        if (frame == null) {
-                            isGameOver = true;
-                        }
-                    }
-                }
-                gameScreen.update(frame);
+      @Override
+      public void handle(long now) {
+        if (!isGameOver && !isPaused) {
+          if ((now - prevTime) >= settings.getSpeed() * 1000000) {
+            prevTime = now;
+            Direction[] directions = new Direction[snakeCount];
+            System.arraycopy(currDir, 0, directions, 0, snakeCount);
+            frame = game.makeTurn(directions);
+            if (frame == null) {
+              isGameOver = true;
             }
           }
         }
