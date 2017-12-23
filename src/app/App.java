@@ -372,7 +372,9 @@ public class App extends Application {
           } catch (IOException | TooManyPlayersException e1) {
             clientFail = true;
           }
-          if (!clientFail) {
+          if (clientFail) {
+            client.close();
+          } else {
             playOnline(settings.getGameplaySettings().getSnakesAmount());
           }
         });
