@@ -63,6 +63,7 @@ public class SnakeServer implements Runnable {
     try {
       this.serverSocket.close();
       game = null;
+      timer.cancel();
     } catch (IOException e) {
       throw new RuntimeException("Error closing server", e);
     }

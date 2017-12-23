@@ -66,12 +66,14 @@ public class MainMenu extends Menu {
         playBack
     );
 
-    MenuObject connectCreate = new MainMenuButton("CREATE");
+    MenuObject connectCreateDuo = new MainMenuButton("CREATE DUO");
+    MenuObject connectCreateTrio = new MainMenuButton("CREATE TRIO");
     connectEdit = new MainMenuEdit("SERVER IP");
     MenuObject connectBack = new MainMenuButton("BACK");
     MenuObject connectPlay = new MainMenuButton("CONNECT");
     MenuBox menuConnect = new MainMenuBox(
-        connectCreate,
+        connectCreateDuo,
+        connectCreateTrio,
         connectEdit,
         connectPlay,
         connectBack
@@ -119,7 +121,7 @@ public class MainMenu extends Menu {
       fadeFromMenuToMenu(menuSkins, menuOptions);
       infoText.setText("");
     });
-    skinButtons.get("skinDecline").setOnMouseClicked(event -> {
+      skinButtons.get("skinDecline").setOnMouseClicked(event -> {
       fadeFromMenuToMenu(menuSkins, menuOptions);
       infoText.setText("");
     });
@@ -152,7 +154,8 @@ public class MainMenu extends Menu {
       put("playDuo", playDuo);
       put("playTrio", playTrio);
       put("playOnline", playOnline);
-      put("connectCreate", connectCreate);
+      put("connectCreateDuo", connectCreateDuo);
+      put("connectCreateTrio", connectCreateTrio);
       put("connectPlay", connectPlay);
     }};
   }

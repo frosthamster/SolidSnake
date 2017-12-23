@@ -2,6 +2,7 @@ package app;
 
 import app.drawing.GameScreen;
 import app.menus.pauseMenu.DisconnectMenu;
+import app.menus.pauseMenu.OnlinePauseMenu;
 import java.awt.Frame;
 import java.awt.Window;
 import java.io.Console;
@@ -122,28 +123,41 @@ public class App extends Application {
     ));
 
     Menu pauseMenu = new PauseMenu();
-    Map<String, MenuObject> bm = pauseMenu.getButtonsMap();
-    bm.get("pauseResume").setOnMouseClicked(event -> {
+    Map<String, MenuObject> bmPause = pauseMenu.getButtonsMap();
+    bmPause.get("pauseResume").setOnMouseClicked(event -> {
       isPaused = false;
       root.getChildren().remove(pauseMenu);
       pauseMenu.reload();
     });
-    bm.get("pauseRestart").setOnMouseClicked(event -> {
+    bmPause.get("pauseRestart").setOnMouseClicked(event -> {
       isPaused = false;
       root.getChildren().remove(pauseMenu);
       pauseMenu.reload();
       reset(snakeCount);
     });
-    bm.get("quitYes").setOnMouseClicked(event -> {
+    bmPause.get("quitYes").setOnMouseClicked(event -> {
       isPaused = false;
-      if (currentlyOnline) {
-        onlineLoop.stop();
-        server.stop();
-        client.close();
-        currentlyOnline = false;
-      } else {
-        gameLoop.stop();
-      }
+      gameLoop.stop();
+      FadeTransition fade = new FadeTransition(Duration.millis(300), root);
+      fade.setFromValue(1);
+      fade.setToValue(0);
+      fade.setOnFinished(e -> theStage.setScene(new Scene(createMainMenu(), Color.BLACK)));
+      fade.play();
+    });
+
+    Menu onlinePauseMenu = new OnlinePauseMenu();
+    Map<String, MenuObject> bmOPause = onlinePauseMenu.getButtonsMap();
+    bmOPause.get("pauseResume").setOnMouseClicked(event -> {
+      isPaused = false;
+      root.getChildren().remove(onlinePauseMenu);
+      onlinePauseMenu.reload();
+    });
+    bmOPause.get("quitYes").setOnMouseClicked(event -> {
+      isPaused = false;
+      onlineLoop.stop();
+      server.stop();
+      client.close();
+      currentlyOnline = false;
       FadeTransition fade = new FadeTransition(Duration.millis(300), root);
       fade.setFromValue(1);
       fade.setToValue(0);
@@ -152,8 +166,8 @@ public class App extends Application {
     });
 
     Menu disconnectMenu = new DisconnectMenu();
-    Map<String, MenuObject> bm2 = disconnectMenu.getButtonsMap();
-    bm2.get("quitDisconnect").setOnMouseClicked(event -> {
+    Map<String, MenuObject> bmDisconnect = disconnectMenu.getButtonsMap();
+    bmDisconnect.get("quitDisconnect").setOnMouseClicked(event -> {
       onlineLoop.stop();
       FadeTransition fade = new FadeTransition(Duration.millis(300), root);
       fade.setFromValue(1);
@@ -209,13 +223,14 @@ public class App extends Application {
           }
           break;
         case ESCAPE:
+          Menu menu = currentlyOnline ? onlinePauseMenu : pauseMenu;
           if (isPaused) {
             isPaused = false;
-            root.getChildren().remove(pauseMenu);
-            pauseMenu.reload();
+            root.getChildren().remove(menu);
+            menu.reload();
           } else {
             isPaused = true;
-            root.getChildren().add(pauseMenu);
+            root.getChildren().add(menu);
           }
       }
     });
@@ -331,39 +346,22 @@ public class App extends Application {
         fade.play();
       }
     });
-    mb.get("connectCreate").setOnMouseClicked(event -> {
+
+    mb.get("connectCreateDuo").setOnMouseClicked(event -> {
       if (event.getClickCount() < 2) {
         reset(2);
-        FadeTransition fade = new FadeTransition(Duration.millis(200), root);
-        fade.setFromValue(1);
-        fade.setToValue(0);
-        boolean serverFail = false;
-        try {
-          server = new SnakeServer(settings);
-          fade.setOnFinished(e -> {
-            boolean clientFail = false;
-            new Thread(server).start();
-            try {
-              client = new Client(InetAddress.getLocalHost(), SnakeServer.port);
-            } catch (IOException | TooManyPlayersException e1) {
-              server.stop();
-              clientFail = true;
-            }
-            if (!clientFail) {
-              playOnline(settings.getGameplaySettings().getSnakesAmount());
-            }
-          });
-        } catch (RuntimeException e) {
-          serverFail = true;
-        }
-        if (!serverFail) {
-          fade.play();
-        }
+        CreateOnlineGame(root);
+      }
+    });
+    mb.get("connectCreateTrio").setOnMouseClicked(event -> {
+      if (event.getClickCount() < 2) {
+        reset(3);
+        CreateOnlineGame(root);
       }
     });
     mb.get("connectPlay").setOnMouseClicked(event -> {
       if (event.getClickCount() < 2) {
-        String address = ((MainMenu) mainMenu).getConnectIP();
+        String address = ((MainMenu)mainMenu).getConnectIP();
         FadeTransition fade = new FadeTransition(Duration.millis(200), root);
         fade.setFromValue(1);
         fade.setToValue(0);
@@ -393,6 +391,34 @@ public class App extends Application {
     logoFade.play();
 
     return root;
+  }
+
+  private void CreateOnlineGame(StackPane root) {
+    FadeTransition fade = new FadeTransition(Duration.millis(200), root);
+    fade.setFromValue(1);
+    fade.setToValue(0);
+    boolean serverFail = false;
+    try {
+      server = new SnakeServer(settings);
+      fade.setOnFinished(e -> {
+        boolean clientFail = false;
+        new Thread(server).start();
+        try {
+          client = new Client(InetAddress.getLocalHost(), SnakeServer.port);
+        } catch (IOException | TooManyPlayersException e1) {
+          server.stop();
+          clientFail = true;
+        }
+        if (!clientFail) {
+          playOnline(settings.getGameplaySettings().getSnakesAmount());
+        }
+      });
+    } catch (RuntimeException e) {
+      serverFail = true;
+    }
+    if (!serverFail) {
+      fade.play();
+    }
   }
 
   private static void reset(int snakeCount) {
