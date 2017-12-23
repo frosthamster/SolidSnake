@@ -2,7 +2,8 @@ package network;
 
 public enum MessageType {
   MakeTurn,
-  SetSettings,
+  Ok,
+  Disconnect,
   TooManyPlayers,
   FrameData
 }

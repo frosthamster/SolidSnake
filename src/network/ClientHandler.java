@@ -6,7 +6,6 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import model.game.GameFrame;
 import model.utils.Direction;
 
 public class ClientHandler implements Runnable {
@@ -53,6 +52,10 @@ public class ClientHandler implements Runnable {
 
   public synchronized void stop() {
     running = false;
+    try {
+      out.writeObject(new SProtocolMessage(MessageType.Disconnect, null));
+    } catch (IOException e) {
+    }
   }
 
   @Override

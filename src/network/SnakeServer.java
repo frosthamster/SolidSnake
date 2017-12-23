@@ -1,5 +1,6 @@
 package network;
 
+import app.Settings;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -10,7 +11,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import model.game.Game;
 import model.game.GameFrame;
-import model.game.GameSettings;
 import model.utils.Direction;
 
 public class SnakeServer implements Runnable {
@@ -21,15 +21,23 @@ public class SnakeServer implements Runnable {
   private GameFrame currentFrame;
   private boolean isRunning = true;
   private int currentConnection;
-  private Direction[] directions = new Direction[2];
+  private Direction[] directions;
+  private Settings settings;
   private Timer timer = new Timer();
-  private ArrayList<Thread> clientHandlers = new ArrayList<>();
+  private ArrayList<Thread> clientHandlersThreads = new ArrayList<>();
+  private ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
   private ArrayList<FrameChangedHandler> frameChangedHandlers = new ArrayList<>();
 
-  public SnakeServer() {
-    for (int i = 0; i < 2; i++) {
+  public SnakeServer(Settings settings) {
+    this.settings = settings;
+    directions = new Direction[settings.getGameplaySettings().getSnakesAmount()];
+
+    for (int i = 0; i < settings.getGameplaySettings().getSnakesAmount(); i++) {
       directions[i] = Direction.None;
     }
+
+    game = new Game(settings.getGameplaySettings());
+
     try {
       serverSocket = new ServerSocket(port);
     } catch (IOException e) {
@@ -49,6 +57,10 @@ public class SnakeServer implements Runnable {
 
   public synchronized void stop() {
     isRunning = false;
+
+    for(ClientHandler ch : clientHandlers)
+      ch.stop();
+
     try {
       this.serverSocket.close();
       game = null;
@@ -76,54 +88,54 @@ public class SnakeServer implements Runnable {
         out = new ObjectOutputStream(clientSocket.getOutputStream());
         in = new ObjectInputStream(clientSocket.getInputStream());
 
-        if(currentConnection > 1){
+        if (currentConnection > directions.length - 1) {
           out.writeObject(new SProtocolMessage(MessageType.TooManyPlayers, null));
           continue;
-        }
-
-        out.writeObject(new SProtocolMessage(MessageType.SetSettings, game == null));
-        if (game == null) {
-          System.out.println("wait settings");
-          SProtocolMessage response = Utils.getResponse(in);
-          GameSettings settings = (GameSettings) response.getData();
-          game = new Game(settings);
-
-          timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-              try {
-                System.out.println("timer tick");
-                synchronized (game) {
-                  currentFrame = game.makeTurn(directions);
-                  notifyFrameChanged(currentFrame);
-                }
-                out.writeObject(new SProtocolMessage(MessageType.FrameData, currentFrame));
-                if (currentFrame == null) {
-                  for (Thread th : clientHandlers) {
-                    try {
-                      th.join();
-                    } catch (InterruptedException e) {
-                      e.printStackTrace();
-                    }
-                  }
-                  timer.cancel();
-                  stop();
-                }
-              } catch (IOException e) {
-                e.printStackTrace();
-              }
-            }
-          }, 0, 100);
+        } else {
+          out.writeObject(new SProtocolMessage(MessageType.Ok, null));
         }
       } catch (IOException e) {
         e.printStackTrace();
         continue;
       }
 
-      Thread clientHandler = new Thread(
-          new ClientHandler(this, in, out, directions, currentConnection));
+      if (currentConnection == 0) {
+
+        timer.schedule(new TimerTask() {
+          @Override
+          public void run() {
+            try {
+              System.out.println("timer tick");
+              if(game == null)
+                return;
+              synchronized (game) {
+                currentFrame = game.makeTurn(directions);
+                notifyFrameChanged(currentFrame);
+              }
+              out.writeObject(new SProtocolMessage(MessageType.FrameData, currentFrame));
+              if (currentFrame == null) {
+                for (Thread th : clientHandlersThreads) {
+                  try {
+                    th.join();
+                  } catch (InterruptedException e) {
+                    e.printStackTrace();
+                  }
+                }
+                timer.cancel();
+                stop();
+              }
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+          }
+        }, 0, 100);
+      }
+
+      ClientHandler clientHandler = new ClientHandler(this, in, out, directions, currentConnection);
       clientHandlers.add(clientHandler);
-      clientHandler.start();
+      Thread clientHandlerThread = new Thread(clientHandler);
+      clientHandlersThreads.add(clientHandlerThread);
+      clientHandlerThread.start();
       currentConnection++;
     }
   }

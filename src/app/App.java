@@ -141,9 +141,9 @@ public class App extends Application {
         server.stop();
         client.close();
         currentlyOnline = false;
-      }
-      else
+      } else {
         gameLoop.stop();
+      }
       FadeTransition fade = new FadeTransition(Duration.millis(300), root);
       fade.setFromValue(1);
       fade.setToValue(0);
@@ -250,7 +250,7 @@ public class App extends Application {
           } catch (IOException e) {
             root.getChildren().add(disconnectMenu);
             isGameOver = true;
-            }
+          }
           gameScreen.update(frame);
           if (frame == null) {
             isGameOver = true;
@@ -339,25 +339,26 @@ public class App extends Application {
         fade.setToValue(0);
         boolean serverFail = false;
         try {
-          server = new SnakeServer();
+          server = new SnakeServer(settings);
           fade.setOnFinished(e -> {
             boolean clientFail = false;
             new Thread(server).start();
             try {
-              client = new Client(settings.getGameplaySettings(), InetAddress.getLocalHost(),
-                  SnakeServer.port);
+              client = new Client(InetAddress.getLocalHost(), SnakeServer.port);
             } catch (IOException | TooManyPlayersException e1) {
               server.stop();
               clientFail = true;
             }
-            if (!clientFail)
-              playOnline(2);
+            if (!clientFail) {
+              playOnline(settings.getGameplaySettings().getSnakesAmount());
+            }
           });
         } catch (RuntimeException e) {
           serverFail = true;
         }
-        if (!serverFail)
+        if (!serverFail) {
           fade.play();
+        }
       }
     });
     mb.get("connectPlay").setOnMouseClicked(event -> {
@@ -369,13 +370,13 @@ public class App extends Application {
         fade.setOnFinished(e -> {
           boolean clientFail = false;
           try {
-            client = new Client(settings.getGameplaySettings(), InetAddress.getByName(address),
-                SnakeServer.port);
+            client = new Client(InetAddress.getByName(address), SnakeServer.port);
           } catch (IOException | TooManyPlayersException e1) {
             clientFail = true;
           }
-          if (!clientFail)
-            playOnline(2);
+          if (!clientFail) {
+            playOnline(settings.getGameplaySettings().getSnakesAmount());
+          }
         });
         fade.play();
       }
