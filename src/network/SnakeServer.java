@@ -1,12 +1,12 @@
 package network;
 
-import java.awt.Frame;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import model.game.Game;
+import model.game.GameFrame;
 import model.game.GameSettings;
 import model.utils.Direction;
 
@@ -15,13 +15,14 @@ public class SnakeServer {
   public static final int port = 7272;
   private ServerSocket serverSocket;
   private Game game;
-  private Frame currentFrame;
+  private GameFrame currentFrame;
   private boolean isRunning = true;
   private Direction[] directions = new Direction[3];
 
   public SnakeServer() {
-    for (int i=0;i<3;i++)
+    for (int i = 0; i < 3; i++) {
       directions[i] = Direction.None;
+    }
 
     try {
       serverSocket = new ServerSocket(port);
@@ -37,7 +38,8 @@ public class SnakeServer {
         clientSocket = serverSocket.accept();
         new ObjectOutputStream(clientSocket.getOutputStream())
             .writeObject(new SProtocolMessage(MessageType.SetSettings, true));
-        SProtocolMessage response = Utils.getResponse(new ObjectInputStream(clientSocket.getInputStream()));
+        SProtocolMessage response = Utils
+            .getResponse(new ObjectInputStream(clientSocket.getInputStream()));
         game = new Game((GameSettings) response.getData());
 
       } catch (IOException e) {
@@ -57,7 +59,7 @@ public class SnakeServer {
     }
   }
 
-  public synchronized Frame getCurrentFrame() {
+  public synchronized GameFrame getCurrentFrame() {
     return currentFrame;
   }
 }

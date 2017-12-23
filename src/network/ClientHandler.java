@@ -1,6 +1,5 @@
 package network;
 
-import java.awt.Frame;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -9,6 +8,7 @@ import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import model.game.GameFrame;
 import model.utils.Direction;
 
 public class ClientHandler implements Runnable {
@@ -21,7 +21,7 @@ public class ClientHandler implements Runnable {
   private Direction direction = Direction.None;
   private final Direction[] directions;
   private int number;
-  private Frame currentFrame;
+  private GameFrame currentFrame;
   private Map<MessageType, Consumer<Object>> handlers = new HashMap<MessageType, Consumer<Object>>() {{
     put(MessageType.MakeTurn, o -> handleMakeTurn(o));
   }};
@@ -76,7 +76,7 @@ public class ClientHandler implements Runnable {
       }
 
       handlers.get(response.getType()).accept(response.getData());
-      Frame newFrame = server.getCurrentFrame();
+      GameFrame newFrame = server.getCurrentFrame();
       if(currentFrame != newFrame)
         try {
           out.writeObject(new SProtocolMessage(MessageType.FrameData, newFrame));

@@ -1,12 +1,12 @@
 package network;
 
 import app.Settings;
-import java.awt.Frame;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import model.game.GameFrame;
 import model.utils.Direction;
 
 public class Client {
@@ -35,11 +35,11 @@ public class Client {
     }
   }
 
-  public Frame getCurrentFrame() throws IOException {
+  public GameFrame getCurrentFrame() throws IOException {
     SProtocolMessage response = Utils.getResponse(in);
     if(response.getType() != MessageType.FrameData)
       throw new IOException();
-    return (Frame) response.getData();
+    return (GameFrame) response.getData();
   }
 
   public void close(){
