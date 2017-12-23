@@ -333,6 +333,7 @@ public class App extends Application {
     });
     mb.get("connectCreate").setOnMouseClicked(event -> {
       if (event.getClickCount() < 2) {
+        reset(2);
         FadeTransition fade = new FadeTransition(Duration.millis(200), root);
         fade.setFromValue(1);
         fade.setToValue(0);
