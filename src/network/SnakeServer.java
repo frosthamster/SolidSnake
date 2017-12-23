@@ -57,10 +57,9 @@ public class SnakeServer implements Runnable {
 
   public synchronized void stop() {
     isRunning = false;
-
+    timer.cancel();
     for(ClientHandler ch : clientHandlers)
       ch.stop();
-
     try {
       this.serverSocket.close();
       game = null;
@@ -121,14 +120,13 @@ public class SnakeServer implements Runnable {
                     e.printStackTrace();
                   }
                 }
-                timer.cancel();
                 stop();
               }
             } catch (IOException e) {
               e.printStackTrace();
             }
           }
-        }, 0, 100);
+        }, 0, settings.getSpeed());
       }
 
       ClientHandler clientHandler = new ClientHandler(this, in, out, directions, currentConnection);
