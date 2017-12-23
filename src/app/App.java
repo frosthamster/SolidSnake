@@ -1,6 +1,13 @@
 package app;
 
 import app.drawing.GameScreen;
+import java.awt.Frame;
+import java.awt.Window;
+import java.io.Console;
+import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
@@ -25,6 +32,9 @@ import model.utils.Direction;
 import model.game.Game;
 import model.game.GameFrame;
 import java.util.Map;
+import network.Client;
+import network.SnakeServer;
+import network.TooManyPlayersException;
 
 public class App extends Application {
 
@@ -42,6 +52,7 @@ public class App extends Application {
 
   private static Stage theStage;
   private static AnimationTimer gameLoop;
+  private static AnimationTimer onlineLoop;
   private static Settings settings;
   private static int width = 800;
   private static int height = 600;
@@ -49,6 +60,8 @@ public class App extends Application {
   public static void main(String[] args) {
     launch(args);
   }
+
+  private static Client client;
 
   @Override
   public void start(Stage primaryStage) {
@@ -86,6 +99,15 @@ public class App extends Application {
     theStage.setScene(new Scene(gamePlay, Color.BLACK));
     gamePlay.requestFocus();
     gameLoop.start();
+  }
+
+  private void playOnline(int snakeCount) {
+    App.snakeCount = snakeCount;
+    reset(App.snakeCount);
+    Parent gamePlay = createGamePlay();
+    theStage.setScene(new Scene(gamePlay, Color.BLACK));
+    gamePlay.requestFocus();
+    onlineLoop.start();
   }
 
   private Parent createGamePlay() {
@@ -196,6 +218,28 @@ public class App extends Application {
       }
     };
 
+    onlineLoop = new AnimationTimer() {
+      @Override
+      public void handle(long now) {
+        GameFrame frame = null;
+        try {
+          frame = client.getCurrentFrame();
+        } catch (IOException e) {
+          e.printStackTrace(); // TODO
+        }
+        gameScreen.update(frame);
+        if (frame == null) {
+          client.close();
+          gameLoop.stop();
+          FadeTransition fade = new FadeTransition(Duration.millis(300), root);
+          fade.setFromValue(1);
+          fade.setToValue(0);
+          fade.setOnFinished(e -> theStage.setScene(new Scene(createMainMenu(), Color.BLACK)));
+          fade.play();
+        }
+      }
+    };
+
     return root;
   }
 
@@ -258,6 +302,41 @@ public class App extends Application {
         fade.setFromValue(1);
         fade.setToValue(0);
         fade.setOnFinished(e -> playSnake(3));
+        fade.play();
+      }
+    });
+    mb.get("connectCreate").setOnMouseClicked(event -> {
+      if (event.getClickCount() < 2) {
+        SnakeServer server = new SnakeServer();
+        FadeTransition fade = new FadeTransition(Duration.millis(200), root);
+        fade.setFromValue(1);
+        fade.setToValue(0);
+        fade.setOnFinished(e -> {
+          server.start();
+          try {
+            client = new Client(settings, InetAddress.getLocalHost(), SnakeServer.port);
+          } catch (IOException | TooManyPlayersException e1) {
+            e1.printStackTrace(); // TODO
+          }
+          playOnline(2);
+        });
+        fade.play();
+      }
+    });
+    mb.get("connectPlay").setOnMouseClicked(event -> {
+      if (event.getClickCount() < 2) {
+        String address = ((MainMenu)mainMenu).getConnectIP();
+        FadeTransition fade = new FadeTransition(Duration.millis(200), root);
+        fade.setFromValue(1);
+        fade.setToValue(0);
+        fade.setOnFinished(e -> {
+          try {
+            client = new Client(settings, InetAddress.getByName(address), SnakeServer.port);
+          } catch (IOException | TooManyPlayersException e1) {
+            e1.printStackTrace(); // TODO
+          }
+          playOnline(2);
+        });
         fade.play();
       }
     });
