@@ -20,6 +20,7 @@ public class MainMenu extends Menu {
   private VBox menuWithInfo;
   private StackPane startPane;
   private MainMenuInfoText infoText;
+  private MainMenuEdit connectEdit;
 
   public MainMenu(Settings settings) {
     menuWithInfo = new VBox();
@@ -65,10 +66,12 @@ public class MainMenu extends Menu {
         playBack
     );
 
-    MenuObject connectEdit = new MainMenuEdit("SERVER IP");
+    MenuObject connectCreate = new MainMenuButton("CREATE");
+    connectEdit = new MainMenuEdit("SERVER IP");
     MenuObject connectBack = new MainMenuButton("BACK");
     MenuObject connectPlay = new MainMenuButton("CONNECT");
     MenuBox menuConnect = new MainMenuBox(
+        connectCreate,
         connectEdit,
         connectPlay,
         connectBack
@@ -149,8 +152,9 @@ public class MainMenu extends Menu {
       put("playDuo", playDuo);
       put("playTrio", playTrio);
       put("playOnline", playOnline);
+      put("connectCreate", connectCreate);
+      put("connectPlay", connectPlay);
     }};
-
   }
 
   @Override
@@ -186,5 +190,9 @@ public class MainMenu extends Menu {
     menu.setAlignment(Pos.BOTTOM_CENTER);
     menu.setMaxWidth(300);
     menu.setTranslateY(-20);
+  }
+
+  public String getConnectIP() {
+    return connectEdit.getTextField().getText();
   }
 }
