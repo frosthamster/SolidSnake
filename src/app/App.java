@@ -1,6 +1,7 @@
 package app;
 
 import app.drawing.GameScreen;
+import app.menus.pauseMenu.DisconnectMenu;
 import java.awt.Frame;
 import java.awt.Window;
 import java.io.Console;
@@ -61,7 +62,9 @@ public class App extends Application {
     launch(args);
   }
 
+  private static boolean currentlyOnline = false;
   private static Client client;
+  private static SnakeServer server;
 
   @Override
   public void start(Stage primaryStage) {
@@ -107,6 +110,7 @@ public class App extends Application {
     Parent gamePlay = createGamePlay();
     theStage.setScene(new Scene(gamePlay, Color.BLACK));
     gamePlay.requestFocus();
+    currentlyOnline = true;
     onlineLoop.start();
   }
 
@@ -132,7 +136,25 @@ public class App extends Application {
     });
     bm.get("quitYes").setOnMouseClicked(event -> {
       isPaused = false;
-      gameLoop.stop();
+      if (currentlyOnline) {
+        onlineLoop.stop();
+        server.stop();
+        client.close();
+        currentlyOnline = false;
+      }
+      else
+        gameLoop.stop();
+      FadeTransition fade = new FadeTransition(Duration.millis(300), root);
+      fade.setFromValue(1);
+      fade.setToValue(0);
+      fade.setOnFinished(e -> theStage.setScene(new Scene(createMainMenu(), Color.BLACK)));
+      fade.play();
+    });
+
+    Menu disconnectMenu = new DisconnectMenu();
+    Map<String, MenuObject> bm2 = disconnectMenu.getButtonsMap();
+    bm2.get("quitDisconnect").setOnMouseClicked(event -> {
+      onlineLoop.stop();
       FadeTransition fade = new FadeTransition(Duration.millis(300), root);
       fade.setFromValue(1);
       fade.setToValue(0);
@@ -226,8 +248,9 @@ public class App extends Application {
             client.makeTurn(currDir[0]);
             frame = client.getCurrentFrame();
           } catch (IOException e) {
-            e.printStackTrace(); // TODO
-          }
+            root.getChildren().add(disconnectMenu);
+            isGameOver = true;
+            }
           gameScreen.update(frame);
           if (frame == null) {
             isGameOver = true;
@@ -310,21 +333,30 @@ public class App extends Application {
     });
     mb.get("connectCreate").setOnMouseClicked(event -> {
       if (event.getClickCount() < 2) {
-        SnakeServer server = new SnakeServer();
         FadeTransition fade = new FadeTransition(Duration.millis(200), root);
         fade.setFromValue(1);
         fade.setToValue(0);
-        fade.setOnFinished(e -> {
-          new Thread(server).start();
-          try {
-            client = new Client(settings.getGameplaySettings(), InetAddress.getLocalHost(),
-                SnakeServer.port);
-          } catch (IOException | TooManyPlayersException e1) {
-            e1.printStackTrace(); // TODO
-          }
-          playOnline(2);
-        });
-        fade.play();
+        boolean serverFail = false;
+        try {
+          server = new SnakeServer();
+          fade.setOnFinished(e -> {
+            boolean clientFail = false;
+            new Thread(server).start();
+            try {
+              client = new Client(settings.getGameplaySettings(), InetAddress.getLocalHost(),
+                  SnakeServer.port);
+            } catch (IOException | TooManyPlayersException e1) {
+              server.stop();
+              clientFail = true;
+            }
+            if (!clientFail)
+              playOnline(2);
+          });
+        } catch (RuntimeException e) {
+          serverFail = true;
+        }
+        if (!serverFail)
+          fade.play();
       }
     });
     mb.get("connectPlay").setOnMouseClicked(event -> {
@@ -334,13 +366,15 @@ public class App extends Application {
         fade.setFromValue(1);
         fade.setToValue(0);
         fade.setOnFinished(e -> {
+          boolean clientFail = false;
           try {
             client = new Client(settings.getGameplaySettings(), InetAddress.getByName(address),
                 SnakeServer.port);
           } catch (IOException | TooManyPlayersException e1) {
-            e1.printStackTrace(); // TODO
+            clientFail = true;
           }
-          playOnline(2);
+          if (!clientFail)
+            playOnline(2);
         });
         fade.play();
       }
