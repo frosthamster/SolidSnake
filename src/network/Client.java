@@ -1,12 +1,12 @@
 package network;
 
-import app.Settings;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import model.game.GameFrame;
+import model.game.GameSettings;
 import model.utils.Direction;
 
 public class Client {
@@ -14,7 +14,7 @@ public class Client {
   private ObjectInputStream in;
   private Socket socket;
 
-  public Client(Settings settings, InetAddress host, int port)
+  public Client(GameSettings settings, InetAddress host, int port)
       throws IOException, TooManyPlayersException {
     Socket socket = new Socket(host, port);
     this.socket = socket;
@@ -36,6 +36,7 @@ public class Client {
   }
 
   public GameFrame getCurrentFrame() throws IOException {
+    System.out.println("get frame from server");
     SProtocolMessage response = Utils.getResponse(in);
     if(response.getType() != MessageType.FrameData)
       throw new IOException();

@@ -1,6 +1,7 @@
 package app;
 
 import app.drawing.TextureType;
+import java.io.Serializable;
 import java.util.HashMap;
 import javafx.scene.image.Image;
 import java.util.Map;

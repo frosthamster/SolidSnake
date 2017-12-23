@@ -3,8 +3,6 @@ package network;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -13,7 +11,6 @@ import model.utils.Direction;
 
 public class ClientHandler implements Runnable {
 
-  private Socket clientSocket;
   private ObjectOutputStream out;
   private ObjectInputStream in;
   private boolean running = true;
@@ -21,29 +18,29 @@ public class ClientHandler implements Runnable {
   private Direction direction = Direction.None;
   private final Direction[] directions;
   private int number;
-  private GameFrame currentFrame;
   private Map<MessageType, Consumer<Object>> handlers = new HashMap<MessageType, Consumer<Object>>() {{
     put(MessageType.MakeTurn, o -> handleMakeTurn(o));
   }};
 
-  public ClientHandler(SnakeServer server, Socket clientSocket, Direction[] directions, int number) {
-    try {
-      clientSocket.setSoTimeout(100);
-    } catch (SocketException e) {
-      e.printStackTrace();
-    }
-
-    try {
-      out = new ObjectOutputStream(clientSocket.getOutputStream());
-      in = new ObjectInputStream(clientSocket.getInputStream());
-    } catch (IOException e) {
-      throw new RuntimeException();
-    }
-
+  public ClientHandler(SnakeServer server, ObjectInputStream in, ObjectOutputStream out,
+      Direction[] directions, int number) {
+    this.in = in;
+    this.out = out;
     this.server = server;
-    this.clientSocket = clientSocket;
     this.directions = directions;
     this.number = number;
+
+    server.addFrameChangedHandler(frame -> {
+      System.out.println("send frame to client");
+      try {
+        out.writeObject(new SProtocolMessage(MessageType.FrameData, frame));
+      } catch (IOException e) {
+        stop();
+      }
+
+      if(frame == null)
+        stop();
+    });
   }
 
   private void handleMakeTurn(Object data) {
@@ -56,12 +53,6 @@ public class ClientHandler implements Runnable {
 
   public synchronized void stop() {
     running = false;
-
-    try {
-      clientSocket.close();
-    } catch (IOException e) {
-      throw new RuntimeException();
-    }
   }
 
   @Override
@@ -70,20 +61,13 @@ public class ClientHandler implements Runnable {
 
     while (isRunning()) {
       try {
+        System.out.println("wait client command");
         response = Utils.getResponse(in);
       } catch (IOException e) {
         continue;
       }
 
       handlers.get(response.getType()).accept(response.getData());
-      GameFrame newFrame = server.getCurrentFrame();
-      if(currentFrame != newFrame)
-        try {
-          out.writeObject(new SProtocolMessage(MessageType.FrameData, newFrame));
-          currentFrame = newFrame;
-        } catch (IOException e) {
-          throw new RuntimeException();
-        }
 
       synchronized (directions) {
         directions[number] = direction;

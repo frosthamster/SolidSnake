@@ -1,5 +1,6 @@
 package app;
 
+import java.io.Serializable;
 import model.creatures.CreatureType;
 import model.game.GameSettings;
 import model.utils.Point;
@@ -10,7 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static model.creatures.CreatureType.*;
 
-public class GameplaySettings implements GameSettings {
+public class GameplaySettings implements GameSettings, Serializable {
 
     private final CreatureType[][] field;
     private final boolean spawnEnabled;

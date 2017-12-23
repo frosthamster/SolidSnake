@@ -43,7 +43,7 @@ public class App extends Application {
   private static boolean isGameOver;
   private static boolean isPaused = false;
   private static Direction[] currDir;
-  private static int snakeCount = 1;
+  private static int snakeCount = 2;
 
   // This values are initital and are being used to set default settings
   // (but might be used as properties later, I dunno)
@@ -221,21 +221,24 @@ public class App extends Application {
     onlineLoop = new AnimationTimer() {
       @Override
       public void handle(long now) {
-        GameFrame frame = null;
-        try {
-          frame = client.getCurrentFrame();
-        } catch (IOException e) {
-          e.printStackTrace(); // TODO
-        }
-        gameScreen.update(frame);
-        if (frame == null) {
-          client.close();
-          gameLoop.stop();
-          FadeTransition fade = new FadeTransition(Duration.millis(300), root);
-          fade.setFromValue(1);
-          fade.setToValue(0);
-          fade.setOnFinished(e -> theStage.setScene(new Scene(createMainMenu(), Color.BLACK)));
-          fade.play();
+        if (!isGameOver) {
+          try {
+            client.makeTurn(currDir[0]);
+            frame = client.getCurrentFrame();
+          } catch (IOException e) {
+            e.printStackTrace(); // TODO
+          }
+          gameScreen.update(frame);
+          if (frame == null) {
+            isGameOver = true;
+            client.close();
+            onlineLoop.stop();
+            FadeTransition fade = new FadeTransition(Duration.millis(300), root);
+            fade.setFromValue(1);
+            fade.setToValue(0);
+            fade.setOnFinished(e -> theStage.setScene(new Scene(createMainMenu(), Color.BLACK)));
+            fade.play();
+          }
         }
       }
     };
@@ -312,9 +315,10 @@ public class App extends Application {
         fade.setFromValue(1);
         fade.setToValue(0);
         fade.setOnFinished(e -> {
-          server.start();
+          new Thread(server).start();
           try {
-            client = new Client(settings, InetAddress.getLocalHost(), SnakeServer.port);
+            client = new Client(settings.getGameplaySettings(), InetAddress.getLocalHost(),
+                SnakeServer.port);
           } catch (IOException | TooManyPlayersException e1) {
             e1.printStackTrace(); // TODO
           }
@@ -325,13 +329,14 @@ public class App extends Application {
     });
     mb.get("connectPlay").setOnMouseClicked(event -> {
       if (event.getClickCount() < 2) {
-        String address = ((MainMenu)mainMenu).getConnectIP();
+        String address = ((MainMenu) mainMenu).getConnectIP();
         FadeTransition fade = new FadeTransition(Duration.millis(200), root);
         fade.setFromValue(1);
         fade.setToValue(0);
         fade.setOnFinished(e -> {
           try {
-            client = new Client(settings, InetAddress.getByName(address), SnakeServer.port);
+            client = new Client(settings.getGameplaySettings(), InetAddress.getByName(address),
+                SnakeServer.port);
           } catch (IOException | TooManyPlayersException e1) {
             e1.printStackTrace(); // TODO
           }

@@ -1,8 +1,9 @@
 package app;
 
+import java.io.Serializable;
 import model.game.GameSettings;
 
-public class Settings {
+public class Settings implements Serializable {
 
   private int size;
   private int speed;

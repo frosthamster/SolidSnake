@@ -1,5 +1,6 @@
 package model.game;
 
+import java.io.Serializable;
 import model.creatures.Creature;
 import model.creatures.CreatureType;
 import model.creatures.CreatureTypeValidator;
@@ -10,7 +11,7 @@ import model.utils.Point;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GameFrame {
+public class GameFrame implements Serializable{
 
     private final int height;
     private final int width;
@@ -73,7 +74,7 @@ public class GameFrame {
     }
 
 
-    public class CreatureInfo {
+    public class CreatureInfo implements Serializable {
         private final CreatureType type;
         private final Direction direction;
         private final Integer playerNumber;
