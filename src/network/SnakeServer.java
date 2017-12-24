@@ -79,7 +79,6 @@ public class SnakeServer implements Runnable {
       try {
         System.out.println("wait client");
         clientSocket = serverSocket.accept();
-        clientSocket.setSoTimeout(50);
       } catch (IOException e) {
         System.out.println("Server stopped");
         return;
@@ -95,20 +94,6 @@ public class SnakeServer implements Runnable {
         } else {
           out.writeObject(new SProtocolMessage(MessageType.Ok,
               settings.getGameplaySettings().getSnakesAmount()));
-
-          if (currentConnection > 0)
-            new Timer().schedule(new TimerTask() {
-              int snakeId = currentConnection;
-
-              @Override
-              public void run() {
-                synchronized (directions) {
-                  if (directions[snakeId] == Direction.None) {
-                    directions[snakeId] = Direction.Up;
-                  }
-                }
-              }
-            }, 10000);
         }
       } catch (IOException e) {
         e.printStackTrace();

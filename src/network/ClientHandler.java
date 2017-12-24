@@ -67,7 +67,8 @@ public class ClientHandler implements Runnable {
         System.out.println("wait client command");
         response = Utils.getResponse(in);
       } catch (IOException e) {
-        continue;
+        System.out.println("break!");
+        break;
       }
 
       handlers.get(response.getType()).accept(response.getData());
@@ -76,5 +77,10 @@ public class ClientHandler implements Runnable {
         directions[number] = direction;
       }
     }
+
+    if(direction == Direction.None)
+      synchronized (directions) {
+        directions[number] = Direction.Up;
+      }
   }
 }
