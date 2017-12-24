@@ -67,7 +67,7 @@ public class ClientHandler implements Runnable {
         System.out.println("wait client command");
         response = Utils.getResponse(in);
       } catch (IOException e) {
-        System.out.println("break!");
+        System.out.println("stop client handler");
         break;
       }
 
