@@ -276,4 +276,20 @@ public class Game {
         }
         return randomPoints;
     }
+
+    public int getWidth() {
+        return field.length;
+    }
+
+    public int getHeight() {
+        return field[0].length;
+    }
+
+    public Creature getCreatureAt(Point point) {
+        return field[point.getX()][point.getY()];
+    }
+
+    public Snake getSnake(int index) {
+        return snakes[index];
+    }
 }

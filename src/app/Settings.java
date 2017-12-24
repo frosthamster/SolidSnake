@@ -9,6 +9,7 @@ public class Settings implements Serializable {
   private int speed;
   private VisualSettings skins; //= new SkinSettings(1, 1, 1);
   private GameSettings gameplaySettings;
+  private boolean[] bots;
 
   public Settings(int size, int speed, VisualSettings skinSettings, GameSettings gameplaySettings) {
     this.size = size;
@@ -63,5 +64,12 @@ public class Settings implements Serializable {
 
   public void setSkins(VisualSettings skins) {
     this.skins = skins;
+  }
+
+  public boolean[] getBots() { return bots; }
+
+  public void setBots(boolean[] bots) {
+    this.bots = new boolean[bots.length];
+    System.arraycopy(bots, 0, this.bots, 0, bots.length);
   }
 }

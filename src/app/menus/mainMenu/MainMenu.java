@@ -21,6 +21,7 @@ public class MainMenu extends Menu {
   private StackPane startPane;
   private MainMenuInfoText infoText;
   private MainMenuEdit connectEdit;
+  private boolean bots[];
 
   public MainMenu(Settings settings) {
     menuWithInfo = new VBox();
@@ -43,15 +44,37 @@ public class MainMenu extends Menu {
     MainMenuSlider optionsSize = new MainMenuSlider(10, 60, settings.getSize(),
         "SIZE OF GAME OBJECTS");
     MenuObject optionsSkins = new MainMenuButton("SKINS");
+    MenuObject optionsBots = new MainMenuButton("BOTS");
     MenuObject optionsBack = new MainMenuButton("BACK");
     MenuBox menuOptions = new MainMenuBox(
         optionsSpeed,
         optionsSize,
         optionsSkins,
+        optionsBots,
         optionsBack
     );
 
     MenuBox menuSkins = new SkinMenuBox((SkinSettings) settings.getSkins());
+
+    bots = new boolean[3];
+    MenuObject[] optionsPlayerBots = new MenuObject[3];
+    for (int i = 0; i < 3; ++i) {
+      optionsPlayerBots[i] = new MainMenuButton(String.format("PLAYER %d: NOT BOT", i + 1));
+      int j = i;
+      optionsPlayerBots[i].setOnMouseClicked(event -> {
+        bots[j] = !bots[j];
+        ((MainMenuButton)optionsPlayerBots[j]).setText(String.format(
+            "PLAYER %d: %s", j + 1, bots[j] ? "BOT" : "NOT BOT"));
+        settings.setBots(bots);
+      });
+    }
+    MenuObject optionsBotsBack = new MainMenuButton("BACK");
+    MenuBox menuBots = new MainMenuBox(
+        optionsPlayerBots[0],
+        optionsPlayerBots[1],
+        optionsPlayerBots[2],
+        optionsBotsBack
+    );
 
     MenuObject playSolo = new MainMenuButton("SOLO");
     MenuObject playDuo = new MainMenuButton("DUO");
@@ -115,9 +138,17 @@ public class MainMenu extends Menu {
       infoText.setText("");
     });
 
+    optionsBots.setOnMouseClicked(event -> {
+      fadeFromMenuToMenu(menuOptions, menuBots);
+      infoText.setText("");
+    });
+    optionsBotsBack.setOnMouseClicked(event -> {
+      fadeFromMenuToMenu(menuBots, menuOptions);
+      infoText.setText("");
+    });
+
     Map<String, MenuObject> skinButtons = menuSkins.getButtonsMap();
     skinButtons.get("skinAccept").setOnMouseClicked(event -> {
-
       fadeFromMenuToMenu(menuSkins, menuOptions);
       infoText.setText("");
     });

@@ -33,6 +33,8 @@ import app.menus.menu.Menu;
 import app.menus.menu.MenuObject;
 import app.menus.mainMenu.MainMenu;
 import app.menus.pauseMenu.PauseMenu;
+import model.AI.BaseAI;
+import model.AI.GreedyAI;
 import model.utils.Direction;
 import model.game.Game;
 import model.game.GameFrame;
@@ -48,6 +50,7 @@ public class App extends Application {
   private static boolean isGameOver;
   private static boolean isPaused = false;
   private static Direction[] currDir;
+  private static BaseAI[] bots;
   private static int snakeCount = 2;
 
   // This values are initital and are being used to set default settings
@@ -105,6 +108,7 @@ public class App extends Application {
     Parent gamePlay = createGamePlay();
     theStage.setScene(new Scene(gamePlay, Color.BLACK));
     gamePlay.requestFocus();
+    currentlyOnline = false;
     gameLoop.start();
   }
 
@@ -161,7 +165,6 @@ public class App extends Application {
       if (server != null)
         server.stop();
       client.close();
-      currentlyOnline = false;
       FadeTransition fade = new FadeTransition(Duration.millis(300), root);
       fade.setFromValue(1);
       fade.setToValue(0);
@@ -249,6 +252,9 @@ public class App extends Application {
             prevTime = now;
             Direction[] directions = new Direction[snakeCount];
             System.arraycopy(currDir, 0, directions, 0, snakeCount);
+            for (int i = 0; i < snakeCount; ++i)
+              if (bots[i] != null)
+                directions[i] = bots[i].makeTurn();
             frame = game.makeTurn(directions);
             if (frame == null) {
               isGameOver = true;
@@ -459,6 +465,10 @@ public class App extends Application {
         )
     );
     game = new Game(settings.getGameplaySettings());
+    bots = new BaseAI[snakeCount];
+    boolean[] is_bot = settings.getBots();
+    for (int i = 0; i < snakeCount; ++i)
+      bots[i] = is_bot[i] ? new GreedyAI(game, game.getSnake(i)) : null;
     Direction[] directions = new Direction[snakeCount];
     System.arraycopy(currDir, 0, directions, 0, snakeCount);
     frame = game.makeTurn(directions);

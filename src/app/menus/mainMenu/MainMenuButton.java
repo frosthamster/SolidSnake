@@ -12,6 +12,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 public class MainMenuButton extends MenuObject {
+    private Text text;
 
     public MainMenuButton(String name){
         LinearGradient gradient = new LinearGradient(
@@ -28,7 +29,7 @@ public class MainMenuButton extends MenuObject {
         Rectangle bg = new Rectangle(200, 30);
         bg.setOpacity(0.4);
 
-        Text text = new Text(name);
+        text = new Text(name);
         text.setFill(Color.DARKGREY);
         text.setFont(Font.font("Calibri", FontWeight.SEMI_BOLD, 22));
 
@@ -42,5 +43,9 @@ public class MainMenuButton extends MenuObject {
         });
         setOnMousePressed(event -> bg.setFill(gradient));
         setOnMouseReleased(event -> bg.setFill(Color.TRANSPARENT));
+    }
+
+    void setText(String new_text) {
+        text.setText(new_text);
     }
 }
