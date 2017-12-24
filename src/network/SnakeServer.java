@@ -92,7 +92,7 @@ public class SnakeServer implements Runnable {
           out.writeObject(new SProtocolMessage(MessageType.TooManyPlayers, null));
           continue;
         } else {
-          out.writeObject(new SProtocolMessage(MessageType.Ok, null));
+          out.writeObject(new SProtocolMessage(MessageType.Ok, settings.getGameplaySettings().getSnakesAmount()));
         }
       } catch (IOException e) {
         e.printStackTrace();

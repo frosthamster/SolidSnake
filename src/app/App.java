@@ -375,7 +375,7 @@ public class App extends Application {
           if (clientFail) {
             client.close();
           } else {
-            playOnline(settings.getGameplaySettings().getSnakesAmount());
+            playOnline(client.getPlayersCount());
           }
         });
         fade.play();
