@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Timer;
+import java.util.TimerTask;
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
@@ -273,11 +275,17 @@ public class App extends Application {
             isGameOver = true;
             client.close();
             onlineLoop.stop();
-            FadeTransition fade = new FadeTransition(Duration.millis(300), root);
-            fade.setFromValue(1);
-            fade.setToValue(0);
-            fade.setOnFinished(e -> theStage.setScene(new Scene(createMainMenu(), Color.BLACK)));
-            fade.play();
+            new Timer().schedule(new TimerTask() {
+              @Override
+              public void run() {
+                FadeTransition fade = new FadeTransition(Duration.millis(300), root);
+                fade.setFromValue(1);
+                fade.setToValue(0);
+                fade.setOnFinished(e -> theStage.setScene(new Scene(createMainMenu(), Color.BLACK)));
+                fade.play();
+              }
+            }, 2000);
+
           }
         }
       }
@@ -454,5 +462,9 @@ public class App extends Application {
     Direction[] directions = new Direction[snakeCount];
     System.arraycopy(currDir, 0, directions, 0, snakeCount);
     frame = game.makeTurn(directions);
+  }
+
+  public static boolean getCurrentlyOnLine(){
+    return currentlyOnline;
   }
 }
