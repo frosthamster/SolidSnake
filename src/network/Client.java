@@ -54,7 +54,8 @@ public class Client {
   }
 
   public void makeTurn(Direction direction) throws IOException {
-    out.writeObject(new SProtocolMessage(MessageType.MakeTurn, direction));
+    if(direction != Direction.None)
+      out.writeObject(new SProtocolMessage(MessageType.MakeTurn, direction));
   }
 
   public int getPlayersCount(){

@@ -58,8 +58,9 @@ public class SnakeServer implements Runnable {
   public synchronized void stop() {
     isRunning = false;
     timer.cancel();
-    for(ClientHandler ch : clientHandlers)
+    for (ClientHandler ch : clientHandlers) {
       ch.stop();
+    }
     try {
       this.serverSocket.close();
       game = null;
@@ -92,7 +93,22 @@ public class SnakeServer implements Runnable {
           out.writeObject(new SProtocolMessage(MessageType.TooManyPlayers, null));
           continue;
         } else {
-          out.writeObject(new SProtocolMessage(MessageType.Ok, settings.getGameplaySettings().getSnakesAmount()));
+          out.writeObject(new SProtocolMessage(MessageType.Ok,
+              settings.getGameplaySettings().getSnakesAmount()));
+
+          if (currentConnection > 0)
+            new Timer().schedule(new TimerTask() {
+              int snakeId = currentConnection;
+
+              @Override
+              public void run() {
+                synchronized (directions) {
+                  if (directions[snakeId] == Direction.None) {
+                    directions[snakeId] = Direction.Up;
+                  }
+                }
+              }
+            }, 10000);
         }
       } catch (IOException e) {
         e.printStackTrace();
@@ -106,8 +122,9 @@ public class SnakeServer implements Runnable {
           public void run() {
             try {
               System.out.println("timer tick");
-              if(game == null)
+              if (game == null) {
                 return;
+              }
               synchronized (game) {
                 currentFrame = game.makeTurn(directions);
                 notifyFrameChanged(currentFrame);
