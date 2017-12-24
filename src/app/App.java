@@ -3,6 +3,7 @@ package app;
 import app.drawing.GameScreen;
 import app.menus.pauseMenu.DisconnectMenu;
 import app.menus.pauseMenu.OnlinePauseMenu;
+import app.menus.pauseMenu.TooManyPlayersMenu;
 import java.awt.Frame;
 import java.awt.Window;
 import java.io.Console;
@@ -155,7 +156,8 @@ public class App extends Application {
     bmOPause.get("quitYes").setOnMouseClicked(event -> {
       isPaused = false;
       onlineLoop.stop();
-      server.stop();
+      if (server != null)
+        server.stop();
       client.close();
       currentlyOnline = false;
       FadeTransition fade = new FadeTransition(Duration.millis(300), root);
@@ -347,6 +349,12 @@ public class App extends Application {
       }
     });
 
+    Menu tooManyPlayersMenu = new TooManyPlayersMenu();
+    Map<String, MenuObject> bmTooManyPlayers = tooManyPlayersMenu.getButtonsMap();
+    bmTooManyPlayers.get("quitOK").setOnMouseClicked(even ->
+        root.getChildren().remove(tooManyPlayersMenu)
+    );
+
     mb.get("connectCreateDuo").setOnMouseClicked(event -> {
       if (event.getClickCount() < 2) {
         reset(2);
@@ -361,24 +369,23 @@ public class App extends Application {
     });
     mb.get("connectPlay").setOnMouseClicked(event -> {
       if (event.getClickCount() < 2) {
+        boolean clientFail = false;
         String address = ((MainMenu)mainMenu).getConnectIP();
-        FadeTransition fade = new FadeTransition(Duration.millis(200), root);
-        fade.setFromValue(1);
-        fade.setToValue(0);
-        fade.setOnFinished(e -> {
-          boolean clientFail = false;
-          try {
-            client = new Client(InetAddress.getByName(address), SnakeServer.port);
-          } catch (IOException | TooManyPlayersException e1) {
-            clientFail = true;
-          }
-          if (clientFail) {
-            client.close();
-          } else {
-            playOnline(settings.getGameplaySettings().getSnakesAmount());
-          }
-        });
-        fade.play();
+        try {
+          client = new Client(InetAddress.getByName(address), SnakeServer.port);
+        } catch (IOException e1) {
+          clientFail = true;
+        } catch (TooManyPlayersException e1) {
+          clientFail = true;
+          root.getChildren().add(tooManyPlayersMenu);
+        }
+        if (!clientFail) {
+          FadeTransition fade = new FadeTransition(Duration.millis(200), root);
+          fade.setFromValue(1);
+          fade.setToValue(0);
+          fade.setOnFinished(e -> playOnline(settings.getGameplaySettings().getSnakesAmount()));
+          fade.play();
+        }
       }
     });
 
