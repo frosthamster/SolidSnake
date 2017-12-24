@@ -383,7 +383,7 @@ public class App extends Application {
           FadeTransition fade = new FadeTransition(Duration.millis(200), root);
           fade.setFromValue(1);
           fade.setToValue(0);
-          fade.setOnFinished(e -> playOnline(settings.getGameplaySettings().getSnakesAmount()));
+          fade.setOnFinished(e -> playOnline(client.getPlayersCount()));
           fade.play();
         }
       }

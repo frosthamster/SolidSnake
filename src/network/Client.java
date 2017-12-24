@@ -13,6 +13,7 @@ public class Client {
   private ObjectOutputStream out;
   private ObjectInputStream in;
   private Socket socket;
+  private int playersCount;
 
   public Client(InetAddress host, int port)
       throws IOException, TooManyPlayersException {
@@ -25,6 +26,7 @@ public class Client {
     if (response.getType() == MessageType.TooManyPlayers) {
       throw new TooManyPlayersException();
     }
+    playersCount = (int) response.getData();
   }
 
   public GameFrame getCurrentFrame() throws IOException {
@@ -53,5 +55,9 @@ public class Client {
 
   public void makeTurn(Direction direction) throws IOException {
     out.writeObject(new SProtocolMessage(MessageType.MakeTurn, direction));
+  }
+
+  public int getPlayersCount(){
+    return playersCount;
   }
 }
