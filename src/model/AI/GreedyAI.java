@@ -8,7 +8,21 @@ import model.utils.Direction;
 import model.utils.Point;
 import sun.misc.Queue;
 
-public class GreedyAI extends BaseAI{
+public class GreedyAI extends BaseAI {
+  private static final Direction[] directionOrder = {
+      Direction.Up,
+      Direction.Right,
+      Direction.Down,
+      Direction.Left
+  };
+
+  public static boolean isOpposite(Direction d1, Direction d2) {
+    for (int i = 0; i < 4; ++i)
+      if (directionOrder[i] == d1 && directionOrder[(i + 2) % 4] == d2)
+        return true;
+    return false;
+  }
+
   private int[][] distance;
   private final int unvisited;
   private final int unreachable;
@@ -16,7 +30,7 @@ public class GreedyAI extends BaseAI{
   public GreedyAI(Game game, Snake snake) {
     super(game, snake);
     distance = new int[game.getWidth()][game.getHeight()];
-    unvisited = game.getHeight() * game.getHeight();
+    unvisited = game.getWidth() * game.getHeight();
     unreachable = unvisited + 1;
   }
 
@@ -60,14 +74,17 @@ public class GreedyAI extends BaseAI{
     }
     Point start = snake.getHead().getLocation();
     Direction best = Direction.None;
-    int best_value = unreachable;
+    Direction curDir = snake.getCurrentDirection();
+    int bestValue = unreachable;
     for (Direction dir: Direction.values()) {
+      if (isOpposite(curDir, dir))
+        continue;
       Point next = new Point(start, dir);
       int x = next.getX();
       int y = next.getY();
-      if (next.isInBounds(width, height) && distance[x][y] < best_value) {
+      if (next.isInBounds(width, height) && distance[x][y] < bestValue) {
         best = dir;
-        best_value = distance[x][y];
+        bestValue = distance[x][y];
       }
     }
     return best;
