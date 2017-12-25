@@ -63,13 +63,13 @@ public class MainMenu extends Menu {
     MenuBox menuSkins = new SkinMenuBox((SkinSettings) settings.getSkins());
 
     bots = new boolean[3];
-    MenuObject[] optionsPlayerBots = new MenuObject[3];
-    for (int i = 0; i < 3; ++i) {
-      optionsPlayerBots[i] = new MainMenuButton(String.format("PLAYER %d: NOT BOT", i + 1));
+    MenuObject[] optionsPlayerBots = new MenuObject[2];
+    for (int i = 1; i < 3; ++i) {
+      optionsPlayerBots[i - 1] = new MainMenuButton(String.format("PLAYER %d: NOT BOT", i + 1));
       int j = i;
-      optionsPlayerBots[i].setOnMouseClicked(event -> {
+      optionsPlayerBots[j - 1].setOnMouseClicked(event -> {
         bots[j] = !bots[j];
-        ((MainMenuButton)optionsPlayerBots[j]).setText(String.format(
+        ((MainMenuButton)optionsPlayerBots[j - 1]).setText(String.format(
             "PLAYER %d: %s", j + 1, bots[j] ? "BOT" : "NOT BOT"));
         BiFunction<Game, Snake, BaseAI>[] bot_settings = new BiFunction[3];
         for (int k = 0; k < 3; ++k)
@@ -81,7 +81,6 @@ public class MainMenu extends Menu {
     MenuBox menuBots = new MainMenuBox(
         optionsPlayerBots[0],
         optionsPlayerBots[1],
-        optionsPlayerBots[2],
         optionsBotsBack
     );
 
