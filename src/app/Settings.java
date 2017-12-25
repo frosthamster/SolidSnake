@@ -74,6 +74,8 @@ public class Settings implements Serializable {
 
   public BiFunction<Game, Snake, BaseAI>[] getBots() { return bots; }
 
+  public BiFunction<Game, Snake, BaseAI> getBotAt(int index) { return bots[index]; }
+
   public void setBots(BiFunction<Game, Snake, BaseAI>[] bots) {
     this.bots = new BiFunction[bots.length];
     System.arraycopy(bots, 0, this.bots, 0, bots.length);

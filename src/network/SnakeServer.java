@@ -9,6 +9,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.BiFunction;
+import model.AI.BaseAI;
+import model.creatures.snakes.Snake;
 import model.game.Game;
 import model.game.GameFrame;
 import model.utils.Direction;
@@ -27,6 +30,7 @@ public class SnakeServer implements Runnable {
   private ArrayList<Thread> clientHandlersThreads = new ArrayList<>();
   private ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
   private ArrayList<FrameChangedHandler> frameChangedHandlers = new ArrayList<>();
+  private BaseAI bots[];
 
   public SnakeServer(Settings settings) {
     this.settings = settings;
@@ -37,6 +41,16 @@ public class SnakeServer implements Runnable {
     }
 
     game = new Game(settings.getGameplaySettings());
+
+    bots = new BaseAI[directions.length];
+    for (int i = 0; i < directions.length; ++i) {
+      BiFunction<Game, Snake, BaseAI> bot = settings.getBotAt(i);
+      if (bot != null) {
+        bots[i] = bot.apply(game, game.getSnake(i));
+        if (currentConnection == i)
+          currentConnection++;
+      }
+    }
 
     try {
       serverSocket = new ServerSocket(port);
@@ -110,6 +124,9 @@ public class SnakeServer implements Runnable {
               if (game == null) {
                 return;
               }
+              for (int i = 0; i < directions.length; ++i)
+                if (bots[i] != null)
+                  directions[i] = bots[i].makeTurn();
               synchronized (game) {
                 currentFrame = game.makeTurn(directions);
                 notifyFrameChanged(currentFrame);
@@ -138,6 +155,8 @@ public class SnakeServer implements Runnable {
       clientHandlersThreads.add(clientHandlerThread);
       clientHandlerThread.start();
       currentConnection++;
+      while (currentConnection < directions.length && settings.getBotAt(currentConnection) != null)
+        currentConnection++;
     }
   }
 }
