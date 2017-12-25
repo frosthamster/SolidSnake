@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.BiFunction;
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
@@ -35,6 +36,7 @@ import app.menus.mainMenu.MainMenu;
 import app.menus.pauseMenu.PauseMenu;
 import model.AI.BaseAI;
 import model.AI.GreedyAI;
+import model.creatures.snakes.Snake;
 import model.utils.Direction;
 import model.game.Game;
 import model.game.GameFrame;
@@ -466,9 +468,10 @@ public class App extends Application {
     );
     game = new Game(settings.getGameplaySettings());
     bots = new BaseAI[snakeCount];
-    boolean[] is_bot = settings.getBots();
+    BiFunction<Game, Snake, BaseAI>[] bot_constructors = settings.getBots();
     for (int i = 0; i < snakeCount; ++i)
-      bots[i] = is_bot[i] ? new GreedyAI(game, game.getSnake(i)) : null;
+      bots[i] = bot_constructors[i] == null ? null :
+          bot_constructors[i].apply(game, game.getSnake(i));
     Direction[] directions = new Direction[snakeCount];
     System.arraycopy(currDir, 0, directions, 0, snakeCount);
     frame = game.makeTurn(directions);

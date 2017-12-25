@@ -7,12 +7,18 @@ import app.menus.menu.Menu;
 import app.menus.menu.MenuBox;
 import app.menus.menu.MenuObject;
 import java.util.HashMap;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import java.util.Map;
+import model.AI.BaseAI;
+import model.AI.GreedyAI;
+import model.creatures.snakes.Snake;
+import model.game.Game;
 
 public class MainMenu extends Menu {
 
@@ -65,7 +71,10 @@ public class MainMenu extends Menu {
         bots[j] = !bots[j];
         ((MainMenuButton)optionsPlayerBots[j]).setText(String.format(
             "PLAYER %d: %s", j + 1, bots[j] ? "BOT" : "NOT BOT"));
-        settings.setBots(bots);
+        BiFunction<Game, Snake, BaseAI>[] bot_settings = new BiFunction[3];
+        for (int k = 0; k < 3; ++k)
+          bot_settings[k] = bots[k] ? (Game game, Snake snake) -> new GreedyAI(game, snake) : null;
+        settings.setBots(bot_settings);
       });
     }
     MenuObject optionsBotsBack = new MainMenuButton("BACK");
